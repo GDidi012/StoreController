@@ -8,5 +8,5 @@ Sistema para controle de estoque de uma loja.
 * Abra o cmd e vá para o diretório onde está o projeto Store Controller e digite `python interfaceapp.py`
 
 ## Release
-* Baixe o release daqui: LINK
+* Baixe o release daqui: https://github.com/GDidi012/StoreController/releases/download/1.0/dist.zip
 * Extraia o dist.zip para uma pasta, navegue para a pasta e execute o `interfaceapp.exe`
