@@ -23,4 +23,4 @@ VITOR VINICIUS DE ALMEIDA FREITAS - 18115626
 
 ## Release
 * Baixe o release daqui: https://github.com/GDidi012/StoreController/releases/download/1.0/dist.zip
-* Extraia o dist.zip para uma pasta, navegue para a pasta e execute o `interfaceapp.exe`
+* Extraia o `StoreController.-.Aplicacao.Compilada.zip` para uma pasta, navegue para a pasta e execute o `interfaceapp.exe`
