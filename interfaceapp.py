@@ -68,7 +68,7 @@ class JanelaPrincipal(tk.Tk):
 		if not self.app.usuario.privilegios.alterar_usuarios:
 			return tkinter.messagebox.showerror(
 				f'{self.app.usuario.login}',
-				f'Você não tem privilégios suficientes para acessar esta seção'
+				'Você não tem privilégios suficientes para acessar esta seção'
 			)
 		# exibir janela vendas
 		self.app.vendas.atualizar()
@@ -84,7 +84,7 @@ class JanelaPrincipal(tk.Tk):
 		if not self.app.usuario.privilegios.alterar_produtos:
 			return tkinter.messagebox.showerror(
 				f'{self.app.usuario.login}',
-				f'Você não tem privilégios suficientes para acessar esta seção!'
+				'Você não tem privilégios suficientes para acessar esta seção!'
 			)
 		# exibir janela gerenciamento de produtos
 		self.app.produtos.deiconify()
@@ -94,7 +94,7 @@ class JanelaPrincipal(tk.Tk):
 		if not self.app.usuario.privilegios.alterar_usuarios:
 			return tkinter.messagebox.showerror(
 				f'{self.app.usuario.login}',
-				f'Você não tem privilégios suficientes para acessar esta seção!'
+				'Você não tem privilégios suficientes para acessar esta seção!'
 			)
 		# exibir janela gerenciamento de usuarios
 		self.app.usuarios.deiconify()
@@ -156,8 +156,8 @@ class JanelaUsuarios(tk.Tk):
 			if not usuario:
 				self.atualizar()
 				return tkinter.messagebox.showerror(
-					f'Erro',
-					f'O usuário selecionado parece não existir mais!'
+					'Erro',
+					'O usuário selecionado parece não existir mais!'
 				)
 			# preencher dados do usuario
 			self.limpar()
@@ -176,8 +176,8 @@ class JanelaUsuarios(tk.Tk):
 		if not usuario:
 			self.atualizar()
 			return tkinter.messagebox.showerror(
-				f'Erro',
-				f'O usuário selecionado parece não existir mais!'
+				'Erro',
+				'O usuário selecionado parece não existir mais! Reabra esta seção e tente novamente.'
 			)
 		# preencher novas informacoes
 		usuario.login = self.usuario.get()
@@ -195,14 +195,38 @@ class JanelaUsuarios(tk.Tk):
 		self.atualizar()
 		self.limpar()
 
+		tkinter.messagebox.showinfo(
+			'Salvar usuário',
+			'Usuário atualizado com sucesso!'
+		)
+		
+
 	def adicionar(self):
 		# obter uma nova sessão no banco de dados
 		sessao = db.SessionFactory()
+
+		login_user=self.usuario.get()
+		senha_user=self.senha.get()
+
+		if not login_user or login_user == "":
+			sessao.close()
+			return tkinter.messagebox.showerror(
+				'Erro',
+				'Preencha o campo de nome do usuário!'
+			)
+		
+		if not senha_user or senha_user == "":
+			sessao.close()
+			return tkinter.messagebox.showerror(
+				'Erro',
+				'Preencha o campo de senha do usuário!'
+			)
+		
 		try:
 			# adicionar usuario
 			sessao.add(db.Usuario(
-				login=self.usuario.get(),
-				senha=self.senha.get(),
+				login=login_user,
+				senha=senha_user,
 				privilegios = db.Privilegios(
 					alterar_usuarios = self.alterar_usuarios.get(),
 					alterar_produtos = self.alterar_produtos.get()
@@ -212,12 +236,17 @@ class JanelaUsuarios(tk.Tk):
 			sessao.commit()
 			# limpar campos
 			self.limpar()
+
+			tkinter.messagebox.showinfo(
+				'Adicionar usuário',
+				'Usuário adicionado com sucesso!'
+				)
 		except sqlalchemy.exc.IntegrityError as error:
 			# cancelar todas alterações feitas nesta sessão
 			sessao.rollback()
 			# exibir mensagem de erro
 			tkinter.messagebox.showerror(
-				f'Erro',
+				'Erro',
 				f'[ {error.code} ]: {error.args[0]}'
 			)
 		finally:
@@ -236,12 +265,17 @@ class JanelaUsuarios(tk.Tk):
 			sessao.query(db.Usuario).filter_by(login=usuario_selecionado).delete()
 			# confirmar todas alteraçoes feitas nesta sessão
 			sessao.commit()
+
+			tkinter.messagebox.showinfo(
+				'Deletar usuário',
+				'Usuário removido com sucesso!'
+			)
 		except sqlalchemy.exc.IntegrityError as error:
 			# cancelar todas alterações feitas nesta sessão
 			sessao.rollback()
 			# exibir mensagem de erro
 			tkinter.messagebox.showerror(
-				f'Erro',
+				'Erro',
 				f'[ {error.code} ]: {error.args[0]}'
 			)
 		finally:
@@ -375,7 +409,7 @@ class JanelaVendas(tk.Tk):
 			elif unidades_a_definir > unidades_no_estoque:
 				self.spin_add.set(0)
 				return tkinter.messagebox.showerror(
-					f'Erro',
+					'Erro',
 					f'Desculpe, mas você não pode vender {unidades_a_definir} unidades pois só existem {unidades_no_estoque} unidades no estoque.'
 				)
 			# adicionar ou substituir no carrinho
@@ -414,12 +448,22 @@ class JanelaVendas(tk.Tk):
 
 	def botao_finalizar(self):
 		# listar produtos
+		if not self.carrinho.get_children():
+			return tkinter.messagebox.showerror(
+				'Erro',
+				'Não há produtos no carrinho!'
+			)
+
 		for produto_id in self.carrinho.get_children():
 			quantidade = -int(self.carrinho.set(produto_id, 1))
 			db.Estoque.add(produto_id, 'Vendido', quantidade)
 		# atualizar tela
 		self.atualizar()
 		self.app.controle.selecionar_produto(None)
+		tkinter.messagebox.showinfo(
+			'Vendas',
+			'Venda registrada com sucesso!'
+		)
 
 class JanelaProdutos(tk.Tk):
 	''' Janela Controle de Estoque '''
@@ -453,7 +497,7 @@ class JanelaProdutos(tk.Tk):
 		produto_nome = self.produto.get()
 		if not produto_nome or produto_nome == "":
 			return tkinter.messagebox.showerror(
-				f'Erro',
+				'Erro',
 				'Preencha o campo de nome do produto!'
 			)
 		# obter quantidade a adicionar da caixa de texto
@@ -461,7 +505,7 @@ class JanelaProdutos(tk.Tk):
 		# verificar se a quantidade de produtos a adicionar é maior do que 0
 		if produto_qtd <= 0:
 			return tkinter.messagebox.showerror(
-				f'Erro',
+				'Erro',
 				'A quantidade de produtos deve ser maior do que 0!'
 			)
 		# obter preço de compra
@@ -508,6 +552,11 @@ class JanelaProdutos(tk.Tk):
 			self.limpar()
 			# atualizar janela de controle
 			self.app.controle.atualizar_produtos()
+
+			tkinter.messagebox.showinfo(
+				f'Registrar compra',
+				f'Compra registrada com sucesso!'
+				)
 		except sqlalchemy.exc.IntegrityError as error:
 			# exibir mensagem de erro
 			tkinter.messagebox.showerror(

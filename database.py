@@ -56,7 +56,6 @@ class Produto(Base):
 
 	def obter_quantidade(self):
 		sessao = Session()
-		
 		return sessao.query(
 			func.sum(Estoque.quantidade).label("total")
 		).filter(
@@ -127,10 +126,10 @@ def authenticar(login, senha):
 	usuario = Usuario.query.filter(Usuario.login == login).first()
 	# validar usuario retornado do banco de dados
 	if not usuario:
-		return None, 'O login informado não é valido.'
+		return None, 'O usuário informado não existe.'
 	# validar se o usuario esta ativo
 	if not usuario.ativo:
-		return None, 'O usuario está bloqueado no sistema.'
+		return None, 'O usuario está bloqueado de acessar o sistema.'
 	# validar senha do usuario
 	if usuario.senha != senha:
 		return None, 'A senha informada não é valida.'
@@ -139,11 +138,8 @@ def authenticar(login, senha):
 		return usuario, 'Logado com sucesso.'
 
 if __name__ == "__main__":
-	print("Criando tabelas")
 	criar_tabelas()
-	print("Criando sessao")
 	sessao = obter_sessao()
-	print("Adicionando produtos")
 	abacaxi = Produto(
 		nome = "Camisa Polo",
 		categoria = ProdutoCategoria.frutas,
@@ -156,7 +152,7 @@ if __name__ == "__main__":
 		preco = 10,
 	)
 	sessao.add(laranja)
-	print("Adicionando estoque")
+	#print("Adicionando estoque")
 	sessao.add(Estoque(
 		produto = laranja,
 		operacao = 'Compra de Estoque',
